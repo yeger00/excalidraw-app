@@ -3,55 +3,11 @@ import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import { vi } from "./vi";
+import { init_state } from "./init_state";
 
 const VI_LINK = "mark_as_done"
 
-var g_elements_orig = [
-            {
-              type: "rectangle",
-              version: 141,
-              versionNonce: 361174001,
-              isDeleted: false,
-              id: "oDVXy8D6rom3H1-LLH2-f",
-              fillStyle: "hachure",
-              strokeWidth: 1,
-              strokeStyle: "solid",
-              roughness: 1,
-              opacity: 100,
-              angle: 0,
-              x: 100.50390625,
-              y: 93.67578125,
-              strokeColor: "#000000",
-              backgroundColor: "transparent",
-              width: 15,
-              height: 15,
-              seed: 1968410350,
-              groupIds: [],
-		link: VI_LINK,
-            },
-            {
-              type: "rectangle",
-              version: 141,
-              versionNonce: 361174001,
-              isDeleted: false,
-              id: "oDVXy8D6rom3H1-LLH2-g",
-              fillStyle: "hachure",
-              strokeWidth: 1,
-              strokeStyle: "solid",
-              roughness: 1,
-              opacity: 100,
-              angle: 0,
-              x: 200.50390625,
-              y: 93.67578125,
-              strokeColor: "#000000",
-              backgroundColor: "transparent",
-              width: 15,
-              height: 15,
-              seed: 1968410350,
-              groupIds: [],
-		link: VI_LINK,
-            },
-          ]
+var g_elements_orig = init_state;
 
 var g_elements_override = [
             {
@@ -115,15 +71,6 @@ function add_remove_vi(element) {
 
 function App() {
 
-  const updateSceneOuter = () => {
-    console.log("get in here");
-    const sceneData = {
-      elements: g_elements_override,
-      appState: {
-      },
-    };
-    excalidrawAPI.updateScene(sceneData);
-  };
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
 
     const onLinkOpen = useCallback(
@@ -161,7 +108,6 @@ function App() {
   return (
     <div style={{ height: "500px" }}>
       <p style={{ fontSize: "16px" }}> Click to update the scene</p>
-      <button className="custom-button" onClick={updateSceneOuter}>Update Scene</button>
       <Excalidraw 
 	  onLinkOpen={onLinkOpen}
 	  ref={(api) => setExcalidrawAPI(api)} 
@@ -170,7 +116,7 @@ function App() {
           	appState: {
           	      viewModeEnabled: true,
           	      zenModeEnabled: true,
-          	      viewBackgroundColor: "#a5d8ff"
+          	      viewBackgroundColor: "#f8f9fa"
           	},
           	scrollToContent: true
           }}
