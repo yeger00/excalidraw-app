@@ -2,10 +2,8 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
-import { vi } from "./vi";
+import { vi, VI_LINK } from "./vi";
 import { init_state } from "./init_state";
-
-const VI_LINK = "mark_as_done"
 
 var g_elements_orig = init_state;
 
@@ -35,6 +33,9 @@ var g_elements_override = [
           ]
 
 function create_vi_id_for_element(element) {
+	if (element.id.endsWith("_vi")) {
+		return element.id
+	}
 	return element.id + "_vi";
 }
 
@@ -107,7 +108,9 @@ function App() {
 
   return (
     <div style={{ height: "500px" }}>
-      <p style={{ fontSize: "16px" }}> Click to update the scene</p>
+      <center>
+      <p style={{ fontSize: "16px" }}> Web Dev Roadmap </p>
+      </center>
       <Excalidraw 
 	  onLinkOpen={onLinkOpen}
 	  ref={(api) => setExcalidrawAPI(api)} 

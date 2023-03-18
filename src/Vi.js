@@ -1,5 +1,7 @@
+const VI_LINK = "mark_as_done"
+
 var vi = {
-	      "id": "tjUOTBm9r58u_lRzXv8QB",
+      "id": "tjUOTBm9r58u_lRzXv8QB",
       "type": "text",
       "x": 102.359375,
       "y": 88.640625,
@@ -21,7 +23,7 @@ var vi = {
       "isDeleted": false,
       "boundElements": null,
       "updated": 1679118795769,
-      "link": null,
+      "link": VI_LINK,
       "locked": false,
       "text": "V",
       "fontSize": 20,
@@ -33,4 +35,4 @@ var vi = {
       "originalText": "V"
     };
 
-export {vi};
+export {vi, VI_LINK};
