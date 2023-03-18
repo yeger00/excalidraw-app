@@ -4,6 +4,7 @@ import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import { vi } from "./vi";
 
+const VI_LINK = "mark_as_done"
 
 var g_elements_orig = [
             {
@@ -26,7 +27,29 @@ var g_elements_orig = [
               height: 15,
               seed: 1968410350,
               groupIds: [],
-		link: "http://google.com",
+		link: VI_LINK,
+            },
+            {
+              type: "rectangle",
+              version: 141,
+              versionNonce: 361174001,
+              isDeleted: false,
+              id: "oDVXy8D6rom3H1-LLH2-g",
+              fillStyle: "hachure",
+              strokeWidth: 1,
+              strokeStyle: "solid",
+              roughness: 1,
+              opacity: 100,
+              angle: 0,
+              x: 200.50390625,
+              y: 93.67578125,
+              strokeColor: "#000000",
+              backgroundColor: "transparent",
+              width: 15,
+              height: 15,
+              seed: 1968410350,
+              groupIds: [],
+		link: VI_LINK,
             },
           ]
 
@@ -55,7 +78,39 @@ var g_elements_override = [
             },
           ]
 
+function create_vi_id_for_element(element) {
+	return element.id + "_vi";
+}
 
+function create_vi_for_elemnt(element) {
+      let vi_copy = JSON.parse(JSON.stringify(vi));
+      vi_copy.x = element.x + 2;
+      vi_copy.y = element.y - 5;
+      vi_copy.id = create_vi_id_for_element(element);
+      return vi_copy;
+}
+
+function is_vi_click(element) {
+	const link = element.link;
+	return link == VI_LINK;
+}
+
+function add_remove_vi(element) {
+	const num_of_elements = g_elements_orig.length;
+	const vi_id = create_vi_id_for_element(element);
+	// Create a new list without the vi
+	g_elements_orig = g_elements_orig.filter(function( obj ) {
+  	  return obj.id !== vi_id;
+	});
+	
+	const new_num_of_elements = g_elements_orig.length;
+
+	if (new_num_of_elements == num_of_elements) {
+		// Didn't find vi, let's add it
+		var vi_copy = create_vi_for_elemnt(element);
+		g_elements_orig.push(vi_copy);
+	}
+}
 
 
 function App() {
@@ -82,7 +137,7 @@ function App() {
       const { nativeEvent } = event.detail;
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
-      g_elements_orig.push(vi);
+      add_remove_vi(element);
       const sceneData = {
         elements: g_elements_orig,
         appState: {
@@ -113,7 +168,7 @@ function App() {
 	  initialData={{
           	elements: g_elements_orig,
           	appState: {
-          	      //viewModeEnabled: true,
+          	      viewModeEnabled: true,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#a5d8ff"
           	},
