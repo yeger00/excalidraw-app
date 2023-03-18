@@ -22,8 +22,8 @@ var g_elements_orig = [
               y: 93.67578125,
               strokeColor: "#000000",
               backgroundColor: "transparent",
-              width: 186.47265625,
-              height: 141.9765625,
+              width: 15,
+              height: 15,
               seed: 1968410350,
               groupIds: [],
 		link: "http://google.com",
@@ -65,7 +65,6 @@ function App() {
     const sceneData = {
       elements: g_elements_override,
       appState: {
-        viewBackgroundColor: "#edf2ff",
       },
     };
     excalidrawAPI.updateScene(sceneData);
@@ -87,7 +86,6 @@ function App() {
       const sceneData = {
         elements: g_elements_orig,
         appState: {
-          viewBackgroundColor: "#edf2ff",
         },
       };
       excalidrawAPI.updateScene(sceneData);
@@ -115,7 +113,7 @@ function App() {
 	  initialData={{
           	elements: g_elements_orig,
           	appState: {
-          	      viewModeEnabled: true,
+          	      //viewModeEnabled: true,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#a5d8ff"
           	},
