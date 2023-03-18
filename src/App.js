@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
+import { vi } from "./vi";
 
 
 var g_elements_orig = [
@@ -82,7 +83,14 @@ function App() {
       const { nativeEvent } = event.detail;
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
-      updateSceneOuter();
+      g_elements_orig.push(vi);
+      const sceneData = {
+        elements: g_elements_orig,
+        appState: {
+          viewBackgroundColor: "#edf2ff",
+        },
+      };
+      excalidrawAPI.updateScene(sceneData);
       event.preventDefault();
 
       //const isInternalLink =
