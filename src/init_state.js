@@ -153,7 +153,7 @@ var init_state = [
       "isDeleted": false,
       "boundElements": [],
       "updated": 1679167913570,
-      "link": null,
+      "link": "open_sidebar",
       "locked": false,
       "text": "Syntax",
       "fontSize": 16,

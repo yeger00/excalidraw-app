@@ -1,36 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
-import { Excalidraw } from "@excalidraw/excalidraw";
+import { Excalidraw, Sidebar } from "@excalidraw/excalidraw";
 import { vi, VI_LINK } from "./vi";
 import { init_state } from "./init_state";
 
+// All mu globals
 var g_elements_orig = init_state;
-
-var g_elements_override = [
-            {
-              type: "ellipse",
-              version: 141,
-              versionNonce: 361174001,
-              isDeleted: false,
-              id: "oDVXy8D6rom3H1-LLH2-f",
-              fillStyle: "hachure",
-              strokeWidth: 1,
-              strokeStyle: "solid",
-              roughness: 1,
-              opacity: 100,
-              angle: 0,
-              x: 100.50390625,
-              y: 93.67578125,
-              strokeColor: "#000000",
-              backgroundColor: "transparent",
-              width: 186.47265625,
-              height: 141.9765625,
-              seed: 1968410350,
-              groupIds: [],
-		link: "http://google.com",
-            },
-          ]
+var g_custome_sidebar_header = "Nothing to see here"
+var g_custome_sidebar_content = "yet..."
 
 function create_vi_id_for_element(element) {
 	if (element.id.endsWith("_vi")) {
@@ -50,6 +28,11 @@ function create_vi_for_elemnt(element) {
 function is_vi_click(element) {
 	const link = element.link;
 	return link == VI_LINK;
+}
+
+function is_open_sidebar(element) {
+	const link = element.link;
+	return link == "open_sidebar";
 }
 
 function add_remove_vi(element) {
@@ -85,7 +68,11 @@ function App() {
       const { nativeEvent } = event.detail;
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
-      add_remove_vi(element);
+      if (is_vi_click(element)) {
+      	add_remove_vi(element);
+      } else if (is_open_sidebar(element)) {
+	excalidrawAPI.toggleMenu("customSidebar");	
+      }
       const sceneData = {
         elements: g_elements_orig,
         appState: {
@@ -93,19 +80,17 @@ function App() {
       };
       excalidrawAPI.updateScene(sceneData);
       event.preventDefault();
-
-      //const isInternalLink =
-      //  link.startsWith("/") || link.includes(window.location.origin);
-      //if (isInternalLink && !isNewTab && !isNewWindow) {
-      //  // signal that we're handling the redirect ourselves
-      //  event.preventDefault();
-      //  // do a custom redirect, such as passing to react-router
-      //  // ...
-      //}
     },
     [excalidrawAPI]
   );
 
+//	Snippet to toggle sidebar
+//	<button className="custom-button" onClick={() => {
+//		excalidrawAPI.toggleMenu("customSidebar"); 
+//	}}>
+//        {" "}
+//        Toggle Custom Sidebar{" "}
+//      </button>
   return (
     <div style={{ height: "500px" }}>
       <center>
@@ -119,9 +104,17 @@ function App() {
           	appState: {
           	      viewModeEnabled: true,
           	      zenModeEnabled: true,
-          	      viewBackgroundColor: "#f8f9fa"
+          	      viewBackgroundColor: "#f8f9fa",
           	},
           	scrollToContent: true
+          }}
+	  renderSidebar={() => {
+            return (
+              <Sidebar dockable={true}>
+                <Sidebar.Header>{g_custome_sidebar_header}</Sidebar.Header>
+                <p style={{ padding: "1rem" }}> {g_custome_sidebar_content} </p>
+              </Sidebar>
+            );
           }}
 	  />
     </div>
