@@ -68,6 +68,12 @@ function App() {
       const { nativeEvent } = event.detail;
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
+      var viewModeEnabled = excalidrawAPI.getAppState().viewModeEnabled;
+      if (!viewModeEnabled) {
+	    // Don't do anything when editing.
+      	    event.preventDefault();
+	    return;
+      }
       if (is_vi_click(element)) {
       	add_remove_vi(element);
       } else if (is_open_sidebar(element)) {
@@ -105,6 +111,7 @@ function App() {
           	      viewModeEnabled: true,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#f8f9fa",
+		      zoom: 0.5,
           	},
           	scrollToContent: true
           }}
