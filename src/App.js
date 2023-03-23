@@ -3,10 +3,13 @@ import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw, Sidebar } from "@excalidraw/excalidraw";
 import { vi, VI_LINK } from "./vi";
-import { init_state } from "./init_state";
+var snippets = require('./snippets');
+var init_state = require('./init_state.json');
+
 
 // All mu globals
-var g_elements_orig = init_state;
+var g_elements_orig = init_state.elements;
+var g_custome_sidebar_open = false
 var g_custome_sidebar_header = "Nothing to see here"
 var g_custome_sidebar_content = "yet..."
 
@@ -20,7 +23,7 @@ function create_vi_id_for_element(element) {
 function create_vi_for_elemnt(element) {
       let vi_copy = JSON.parse(JSON.stringify(vi));
       vi_copy.x = element.x + 2;
-      vi_copy.y = element.y - 5;
+      vi_copy.y = element.y;
       vi_copy.id = create_vi_id_for_element(element);
       return vi_copy;
 }
@@ -56,7 +59,17 @@ function add_remove_vi(element) {
 function App() {
 
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
-
+    const onChange = useCallback(
+    (
+      element: NonDeletedExcalidrawElement,
+      event: CustomEvent<{
+        nativeEvent: MouseEvent | React.PointerEvent<HTMLCanvasElement>;
+      }>
+    ) => {
+	    console.log("called");
+    },
+    [excalidrawAPI]
+  );
     const onLinkOpen = useCallback(
     (
       element: NonDeletedExcalidrawElement,
@@ -68,16 +81,36 @@ function App() {
       const { nativeEvent } = event.detail;
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
-      var viewModeEnabled = excalidrawAPI.getAppState().viewModeEnabled;
-      if (!viewModeEnabled) {
-	    // Don't do anything when editing.
-      	    event.preventDefault();
-	    return;
-      }
       if (is_vi_click(element)) {
+      	var viewModeEnabled = excalidrawAPI.getAppState().viewModeEnabled;
+      	if (!viewModeEnabled) {
+      	      // Don't do anything when editing.
+      	      event.preventDefault();
+      	      return;
+      	}
       	add_remove_vi(element);
       } else if (is_open_sidebar(element)) {
-	excalidrawAPI.toggleMenu("customSidebar");	
+	if (g_custome_sidebar_open) { 
+		if (g_custome_sidebar_header == element.text) {
+			// Open on the same element - need to close
+			excalidrawAPI.toggleMenu("customSidebar");
+		} else {
+			// Open, but different element - need to change
+			g_custome_sidebar_header = element.text;
+			var snippet = snippets[element.text.toLowerCase()];
+			if (snippet !== undefined) {
+				g_custome_sidebar_content = snippet.text;
+			}
+		}
+	} else {
+		// Closed. Need to open
+		g_custome_sidebar_header = element.text;
+		var snippet = snippets[element.text.toLowerCase()];
+		if (snippet !== undefined) {
+			g_custome_sidebar_content = snippet.text;
+		}
+		excalidrawAPI.toggleMenu("customSidebar");	
+	}
       }
       const sceneData = {
         elements: g_elements_orig,
@@ -104,11 +137,12 @@ function App() {
       </center>
       <Excalidraw 
 	  onLinkOpen={onLinkOpen}
+	  onChange={onChange}
 	  ref={(api) => setExcalidrawAPI(api)} 
 	  initialData={{
           	elements: g_elements_orig,
           	appState: {
-          	      viewModeEnabled: true,
+          	      //viewModeEnabled: true,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#f8f9fa",
 		      zoom: 0.5,
@@ -119,7 +153,7 @@ function App() {
             return (
               <Sidebar dockable={true}>
                 <Sidebar.Header>{g_custome_sidebar_header}</Sidebar.Header>
-                <p style={{ padding: "1rem" }}> {g_custome_sidebar_content} </p>
+                <pre style={{ padding: "1rem" }}> {g_custome_sidebar_content} </pre>
               </Sidebar>
             );
           }}
