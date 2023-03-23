@@ -142,7 +142,7 @@ function App() {
 	  initialData={{
           	elements: g_elements_orig,
           	appState: {
-          	      //viewModeEnabled: true,
+          	      viewModeEnabled: true,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#f8f9fa",
 		      zoom: 0.5,
@@ -153,7 +153,7 @@ function App() {
             return (
               <Sidebar dockable={true}>
                 <Sidebar.Header>{g_custome_sidebar_header}</Sidebar.Header>
-                <pre style={{ padding: "1rem" }}> {g_custome_sidebar_content} </pre>
+                <p style={{ padding: "1rem" }}> {g_custome_sidebar_content} </p>
               </Sidebar>
             );
           }}
