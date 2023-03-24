@@ -3,11 +3,13 @@ import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw, Sidebar } from "@excalidraw/excalidraw";
 import { vi, VI_LINK } from "./vi";
+var showdown  = require('showdown');
 var snippets = require('./snippets');
 var init_state = require('./init_state.json');
 
 
 // All mu globals
+var g_converter = new showdown.Converter();
 var g_elements_orig = init_state.elements;
 var g_custome_sidebar_open = false
 var g_custome_sidebar_header = "Nothing to see here"
@@ -99,7 +101,7 @@ function App() {
 			g_custome_sidebar_header = element.text;
 			var snippet = snippets[element.text.toLowerCase()];
 			if (snippet !== undefined) {
-				g_custome_sidebar_content = snippet.text;
+				g_custome_sidebar_content = g_converter.makeHtml(snippet.text);
 			}
 		}
 	} else {
@@ -107,7 +109,7 @@ function App() {
 		g_custome_sidebar_header = element.text;
 		var snippet = snippets[element.text.toLowerCase()];
 		if (snippet !== undefined) {
-			g_custome_sidebar_content = snippet.text;
+			g_custome_sidebar_content = g_converter.makeHtml(snippet.text);
 		}
 		excalidrawAPI.toggleMenu("customSidebar");	
 	}
@@ -142,7 +144,7 @@ function App() {
 	  initialData={{
           	elements: g_elements_orig,
           	appState: {
-          	      viewModeEnabled: true,
+          	      //viewModeEnabled: true,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#f8f9fa",
 		      zoom: 0.5,
@@ -153,7 +155,7 @@ function App() {
             return (
               <Sidebar dockable={true}>
                 <Sidebar.Header>{g_custome_sidebar_header}</Sidebar.Header>
-                <p style={{ padding: "1rem" }}> {g_custome_sidebar_content} </p>
+		<div style={{ padding: "1rem" }} className="content" dangerouslySetInnerHTML={{__html: g_custome_sidebar_content}}></div>
               </Sidebar>
             );
           }}
