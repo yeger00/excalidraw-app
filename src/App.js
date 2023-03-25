@@ -3,6 +3,7 @@ import './App.css';
 import React, { useState, useHistory, useCallback } from "react";
 import { Excalidraw, Sidebar } from "@excalidraw/excalidraw";
 import { vi, VI_LINK } from "./vi";
+import MarkdownView from 'react-showdown';
 var showdown  = require('showdown');
 var snippets = require('./snippets');
 var init_state = require('./init_state.json');
@@ -14,6 +15,10 @@ var g_elements_orig = init_state.elements;
 var g_custome_sidebar_open = false
 var g_custome_sidebar_header = "Nothing to see here"
 var g_custome_sidebar_content = "yet..."
+const params = new Proxy(new URLSearchParams(window.location.search), {
+  get: (searchParams, prop) => searchParams.get(prop),
+});
+var g_edit_mode = params.edit_mode == "true";
 
 function create_vi_id_for_element(element) {
 	if (element.id.endsWith("_vi")) {
@@ -59,7 +64,6 @@ function add_remove_vi(element) {
 
 
 function App() {
-
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
     const onChange = useCallback(
     (
@@ -101,7 +105,7 @@ function App() {
 			g_custome_sidebar_header = element.text;
 			var snippet = snippets[element.text.toLowerCase()];
 			if (snippet !== undefined) {
-				g_custome_sidebar_content = g_converter.makeHtml(snippet.text);
+				g_custome_sidebar_content = snippet.text.toString();
 			}
 		}
 	} else {
@@ -109,7 +113,7 @@ function App() {
 		g_custome_sidebar_header = element.text;
 		var snippet = snippets[element.text.toLowerCase()];
 		if (snippet !== undefined) {
-			g_custome_sidebar_content = g_converter.makeHtml(snippet.text);
+			g_custome_sidebar_content = snippet.text.toString();
 		}
 		excalidrawAPI.toggleMenu("customSidebar");	
 	}
@@ -125,15 +129,10 @@ function App() {
     [excalidrawAPI]
   );
 
-//	Snippet to toggle sidebar
-//	<button className="custom-button" onClick={() => {
-//		excalidrawAPI.toggleMenu("customSidebar"); 
-//	}}>
-//        {" "}
-//        Toggle Custom Sidebar{" "}
-//      </button>
   return (
-    <div style={{ height: "500px" }}>
+    <div style={{ 
+	height: "500px" 
+    }}>
       <center>
       <p style={{ fontSize: "16px" }}> Web Dev Roadmap </p>
       </center>
@@ -144,7 +143,7 @@ function App() {
 	  initialData={{
           	elements: g_elements_orig,
           	appState: {
-          	      //viewModeEnabled: true,
+          	      viewModeEnabled: !g_edit_mode,
           	      zenModeEnabled: true,
           	      viewBackgroundColor: "#f8f9fa",
 		      zoom: 0.5,
@@ -152,10 +151,31 @@ function App() {
           	scrollToContent: true
           }}
 	  renderSidebar={() => {
+	    const divStyle={
+    		overflowY: 'scroll',
+    		//border:'1px solid red',
+		padding: "1rem",
+    		float: 'center',
+    		height:'400px',
+   		position:'relative'
+  	    };
+
             return (
               <Sidebar dockable={true}>
                 <Sidebar.Header>{g_custome_sidebar_header}</Sidebar.Header>
-		<div style={{ padding: "1rem" }} className="content" dangerouslySetInnerHTML={{__html: g_custome_sidebar_content}}></div>
+		    <div style={divStyle}>
+		    <MarkdownView
+      			markdown={g_custome_sidebar_content}
+      			options={{ tables: true, emoji: true }}
+    		    />
+ 		    <textarea 
+ 		    	defaultValue={g_custome_sidebar_content}
+ 		    	style={{
+				position:'relative',
+				height:'400px'
+ 			}}
+ 		    ></textarea>
+		    </div>
               </Sidebar>
             );
           }}
