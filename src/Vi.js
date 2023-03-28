@@ -1,4 +1,4 @@
-const VI_LINK = "cmd://mark_as_done"
+const VI_LINK = "mark_as_done"
 
 var vi = {
       "id": "tjUOTBm9r58u_lRzXv8QB",
