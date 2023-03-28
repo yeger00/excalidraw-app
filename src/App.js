@@ -12,13 +12,19 @@ var init_state = require('./init_state.json');
 // All mu globals
 var g_converter = new showdown.Converter();
 var g_elements_orig = init_state.elements;
-var g_custome_sidebar_open = false
+var g_custome_sidebar_open = false;
 var g_custome_sidebar_header = "Nothing to see here"
 var g_custome_sidebar_content = "yet..."
+var g_current_elemnt = {};
+
 const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, prop) => searchParams.get(prop),
 });
 var g_edit_mode = params.edit_mode == "true";
+var g_display = 'none';
+if (g_edit_mode) {
+	g_display = 'visible';
+}
 
 function create_vi_id_for_element(element) {
 	if (element.id.endsWith("_vi")) {
@@ -42,29 +48,51 @@ function is_vi_click(element) {
 
 function is_open_sidebar(element) {
 	const link = element.link;
-	return link == "open_sidebar";
+	return link == "cmd://open_sidebar";
 }
 
-function add_remove_vi(element) {
-	const num_of_elements = g_elements_orig.length;
+function add_remove_vi(element, all_elements) {
+	const num_of_elements = all_elements.length;
 	const vi_id = create_vi_id_for_element(element);
 	// Create a new list without the vi
-	g_elements_orig = g_elements_orig.filter(function( obj ) {
+	all_elements = all_elements.filter(function( obj ) {
   	  return obj.id !== vi_id;
 	});
 	
-	const new_num_of_elements = g_elements_orig.length;
+	const new_num_of_elements = all_elements.length;
 
 	if (new_num_of_elements == num_of_elements) {
 		// Didn't find vi, let's add it
 		var vi_copy = create_vi_for_elemnt(element);
-		g_elements_orig.push(vi_copy);
+		all_elements.push(vi_copy);
 	}
+	return all_elements;
 }
-
 
 function App() {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
+    const onTextAreaChange = useCallback(
+    (
+	    event
+    ) => {
+	g_custome_sidebar_content = event.target.value;
+        var snippet = g_current_elemnt.customData;
+	if (snippet !== undefined) {
+		snippet.text = event.target.value;
+	} else {
+		g_current_elemnt.customData = {};
+		g_current_elemnt.customData.text = event.target.value;
+	}
+        var all_elements = excalidrawAPI.getSceneElements();
+      const sceneData = {
+        elements: all_elements,
+        appState: {
+        },
+      };
+      excalidrawAPI.updateScene(sceneData);
+    },
+    [excalidrawAPI]
+  );
     const onChange = useCallback(
     (
       element: NonDeletedExcalidrawElement,
@@ -87,6 +115,7 @@ function App() {
       const { nativeEvent } = event.detail;
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
+      var all_elements = excalidrawAPI.getSceneElements();
       if (is_vi_click(element)) {
       	var viewModeEnabled = excalidrawAPI.getAppState().viewModeEnabled;
       	if (!viewModeEnabled) {
@@ -94,7 +123,7 @@ function App() {
       	      event.preventDefault();
       	      return;
       	}
-      	add_remove_vi(element);
+      	all_elements = add_remove_vi(element, all_elements);
       } else if (is_open_sidebar(element)) {
 	if (g_custome_sidebar_open) { 
 		if (g_custome_sidebar_header == element.text) {
@@ -110,16 +139,19 @@ function App() {
 		}
 	} else {
 		// Closed. Need to open
+		g_current_elemnt = element;
 		g_custome_sidebar_header = element.text;
-		var snippet = snippets[element.text.toLowerCase()];
+		var snippet = g_current_elemnt.customData;
 		if (snippet !== undefined) {
 			g_custome_sidebar_content = snippet.text.toString();
+		} else {
+			g_custome_sidebar_content = "";
 		}
 		excalidrawAPI.toggleMenu("customSidebar");	
 	}
       }
       const sceneData = {
-        elements: g_elements_orig,
+        elements: all_elements,
         appState: {
         },
       };
@@ -144,7 +176,7 @@ function App() {
           	elements: g_elements_orig,
           	appState: {
           	      viewModeEnabled: !g_edit_mode,
-          	      zenModeEnabled: true,
+          	      zenModeEnabled: !g_edit_mode,
           	      viewBackgroundColor: "#f8f9fa",
 		      zoom: 0.5,
           	},
@@ -159,6 +191,11 @@ function App() {
     		height:'400px',
    		position:'relative'
   	    };
+	    const textStyle={
+		position:'relative',
+		height:'400px',
+		display: g_display
+  	    };
 
             return (
               <Sidebar dockable={true}>
@@ -170,10 +207,8 @@ function App() {
     		    />
  		    <textarea 
  		    	defaultValue={g_custome_sidebar_content}
- 		    	style={{
-				position:'relative',
-				height:'400px'
- 			}}
+ 		    	style={textStyle}
+		    	onChange={onTextAreaChange}
  		    ></textarea>
 		    </div>
               </Sidebar>
