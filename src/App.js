@@ -3,7 +3,6 @@ import React, { useState, useCallback } from "react";
 import { Excalidraw, Sidebar } from "@excalidraw/excalidraw";
 import { vi, VI_LINK } from "./vi";
 import MarkdownView from 'react-showdown';
-var snippets = require('./snippets');
 var init_state = require('./init_state.json');
 
 
