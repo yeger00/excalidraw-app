@@ -16,7 +16,7 @@ var g_current_elemnt = {};
 const params = new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, prop) => searchParams.get(prop),
 });
-var g_edit_mode = params.edit_mode === "true";
+var g_edit_mode = params.edit === "true";
 var g_display = 'none';
 if (g_edit_mode) {
 	g_display = 'visible';
@@ -147,11 +147,8 @@ function App() {
 
   return (
     <div style={{ 
-	height: "500px" 
+	height: "100vh" 
     }}>
-      <center>
-      <p style={{ fontSize: "16px" }}> Web Dev Flow - using Excalidraw</p>
-      </center>
       <Excalidraw 
 	  onLinkOpen={onLinkOpen}
 	  ref={(api) => setExcalidrawAPI(api)} 
