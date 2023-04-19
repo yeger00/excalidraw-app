@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/excalidraw-app/static/css/main.073c9b0a.css",
-    "main.js": "/excalidraw-app/static/js/main.2f85a313.js",
+    "main.js": "/excalidraw-app/static/js/main.0fe988f2.js",
     "static/js/787.5ed7dccc.chunk.js": "/excalidraw-app/static/js/787.5ed7dccc.chunk.js",
     "index.html": "/excalidraw-app/index.html",
     "main.073c9b0a.css.map": "/excalidraw-app/static/css/main.073c9b0a.css.map",
-    "main.2f85a313.js.map": "/excalidraw-app/static/js/main.2f85a313.js.map",
+    "main.0fe988f2.js.map": "/excalidraw-app/static/js/main.0fe988f2.js.map",
     "787.5ed7dccc.chunk.js.map": "/excalidraw-app/static/js/787.5ed7dccc.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.2f85a313.js"
+    "static/js/main.0fe988f2.js"
   ]
 }
