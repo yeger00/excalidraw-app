@@ -6,35 +6,52 @@ import MarkdownView from 'react-showdown';
 var init_state = require('./init_state.json');
 
 
-// All mu globals
+// All globals
 var g_elements_orig = init_state.elements;
 var g_custome_sidebar_open = false;
 var g_custome_sidebar_header = "Nothing to see here"
 var g_custome_sidebar_content = "yet..."
 var g_current_elemnt = {};
-
-const params = new Proxy(new URLSearchParams(window.location.search), {
-  get: (searchParams, prop) => searchParams.get(prop),
-});
-var g_edit_mode = params.edit === "true";
+var g_vi_elements = {};
+var g_edit_mode = false;
+var g_name = "main";
 var g_display = 'none';
-if (g_edit_mode) {
-	g_display = 'visible';
-}
 
-function create_vi_id_for_element(element) {
-	if (element.id.endsWith("_vi")) {
-		return element.id
+function init() {
+	const params = new Proxy(new URLSearchParams(window.location.search), {
+	  get: (searchParams, prop) => searchParams.get(prop),
+	});
+	g_edit_mode = params.edit === "true";
+	if (undefined != params.file) {
+		g_name = params.file;
 	}
-	return element.id + "_vi";
+	if (g_edit_mode) {
+		g_display = 'visible';
+	}
+	g_elements_orig = init_vi_for_elements(g_elements_orig);
 }
 
-function create_vi_for_elemnt(element) {
-      let vi_copy = JSON.parse(JSON.stringify(vi));
-      vi_copy.x = element.x + 2;
-      vi_copy.y = element.y;
-      vi_copy.id = create_vi_id_for_element(element);
-      return vi_copy;
+function create_vi_id_for_element(id) {
+	if (id.endsWith("_vi")) {
+		return id
+	}
+	return id + "_vi";
+}
+
+function create_element_id_for_vi(id) {
+	if (id.endsWith("_vi")) {
+		return id.substr(0, id.length-3);
+	}
+	return id;
+}
+
+function create_vi_for_elemnt(element, y_offset) {
+	let vi_copy = JSON.parse(JSON.stringify(vi));
+	vi_copy.x = element.x + 2;
+	vi_copy.y = element.y + y_offset;
+	console.log(vi_copy);
+	vi_copy.id = create_vi_id_for_element(element.id);
+	return vi_copy;
 }
 
 function is_vi_click(element) {
@@ -49,7 +66,7 @@ function is_open_sidebar(element) {
 
 function add_remove_vi(element, all_elements) {
 	const num_of_elements = all_elements.length;
-	const vi_id = create_vi_id_for_element(element);
+	const vi_id = create_vi_id_for_element(element.id);
 	// Create a new list without the vi
 	all_elements = all_elements.filter(function( obj ) {
   	  return obj.id !== vi_id;
@@ -59,12 +76,67 @@ function add_remove_vi(element, all_elements) {
 
 	if (new_num_of_elements === num_of_elements) {
 		// Didn't find vi, let's add it
-		var vi_copy = create_vi_for_elemnt(element);
+		var vi_copy = create_vi_for_elemnt(element, 0);
 		all_elements.push(vi_copy);
+		add_vi_to_strage(element.id);
+	} else {
+		remove_vi_from_strage(create_element_id_for_vi(element.id));
 	}
 	return all_elements;
 }
 
+function add_vi_to_strage(vi_id) {
+	try {
+		g_vi_elements[g_name].push(vi_id);
+	} catch (error) {
+                g_vi_elements = {g_name: []};
+        }
+	localStorage.setItem("vi_elements", JSON.stringify(g_vi_elements));
+}
+
+function remove_vi_from_strage(vi_id) {
+	try {
+		const index = g_vi_elements[g_name].indexOf(vi_id);
+		if (index > -1) {
+			g_vi_elements[g_name].splice(index, 1);
+		}
+	} catch (error) {
+                g_vi_elements = {g_name: []};
+        }
+	localStorage.setItem("vi_elements", JSON.stringify(g_vi_elements));
+}
+
+function init_vi_for_elements(all_elements) {
+	try {
+		g_vi_elements = localStorage.getItem("vi_elements");
+		if (undefined == g_vi_elements) {
+			// First time, let's add a default
+			g_vi_elements = {g_name: []}
+		} else {
+			g_vi_elements = JSON.parse(g_vi_elements);
+			if (undefined == g_vi_elements[g_name]) {
+				g_vi_elements[g_name] = []
+			} else {
+				// Need to init these ids
+				var new_vis = [];
+				all_elements.forEach(element => {
+					if (-1 != g_vi_elements[g_name].indexOf(element.id)) {
+						var vi_copy = create_vi_for_elemnt(element, -4);
+						new_vis.push(vi_copy);
+					}
+				});
+				all_elements = all_elements.concat(new_vis);
+			}
+
+		}
+	} catch (error) {
+		g_vi_elements = {g_name: []};
+	}
+	localStorage.setItem("vi_elements", JSON.stringify(g_vi_elements));
+	return all_elements;
+}
+
+init();
 function App() {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
     const onTextAreaChange = useCallback(
